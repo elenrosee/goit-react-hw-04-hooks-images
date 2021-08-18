@@ -52,7 +52,7 @@ export default function App() {
 
   const formSubmitHandler = (request) => {
     if (request.trim()) {
-      setImages("");
+      setImages([]);
       setPage(1);
       setRequest(request);
     } else {
@@ -87,7 +87,7 @@ export default function App() {
         />
       )}
       {modalImg && (
-        <Modal onClose={setModalImg}>
+        <Modal onClose={() => setModalImg(null)}>
           {<img src={modalImg.largeImageURL} alt={modalImg.tags} />}
         </Modal>
       )}

@@ -16,13 +16,13 @@ export default function Modal({ children, onClose }) {
 
   const handeleKeyDown = (e) => {
     if (e.code === "Escape") {
-      onClose(null);
+      onClose();
     }
   };
 
   const handeleBackDropClick = (e) => {
     if (e.currentTarget === e.target) {
-      onClose(null);
+      onClose();
     }
   };
 
