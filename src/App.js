@@ -14,7 +14,7 @@ import Modal from "./components/Modal";
 import PicturesApiService from "./Services/apiService";
 
 export default function App() {
-  const [request, setRequest] = useState("forest");
+  const [request, setRequest] = useState("");
   const [page, setPage] = useState(1);
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -22,6 +22,10 @@ export default function App() {
   const [loadMoreBtn, setLoadMoreBtn] = useState(false);
 
   useEffect(() => {
+    if (!request) {
+      setPage(1);
+      return;
+    }
     setLoading(true);
 
     PicturesApiService(page, request)
