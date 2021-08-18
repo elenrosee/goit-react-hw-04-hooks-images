@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 
 import Loader from "react-loader-spinner";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
@@ -12,112 +12,85 @@ import Button from "./components/Button";
 import Modal from "./components/Modal";
 
 import PicturesApiService from "./Services/apiService";
-const picturesApiService = new PicturesApiService();
 
-class App extends Component {
-  state = {
-    images: [],
-    loading: false,
-    showModal: false,
-    modalImg: null,
-    loadMoreBtn: true,
-  };
+export default function App() {
+  const [request, setRequest] = useState("forest");
+  const [page, setPage] = useState(1);
+  const [images, setImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modalImg, setModalImg] = useState(null);
+  const [loadMoreBtn, setLoadMoreBtn] = useState(false);
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
-  };
+  useEffect(() => {
+    setLoading(true);
 
-  onOpenModal = (largeImageURL, tags) => {
-    this.setState({ modalImg: { largeImageURL, tags } });
-    this.toggleModal();
-  };
-
-  formSubmitHandler = ({ request }) => {
-    this.setState(() => {
-      return { images: [] };
-    });
-
-    if (request.trim()) {
-      picturesApiService.resetPage();
-      picturesApiService.searchQuery = request;
-      this.fetchPageImages();
-    } else {
-      alert("Enter search request");
-    }
-  };
-
-  fetchPageImages = () => {
-    this.setState({ loading: true });
-    return picturesApiService
-      .fetchImages()
-      .then(this.addImages)
+    PicturesApiService(page, request)
+      .then(addImages)
       .catch((error) => {
         alert(error);
       })
       .finally(() => {
-        this.setState({ loading: false });
-        if (picturesApiService.page > 2) {
+        setLoading(false);
+        if (page > 1) {
           window.scrollTo({
             top: document.documentElement.scrollHeight,
             behavior: "smooth",
           });
         }
       });
-  };
+  }, [request, page]);
 
-  addImages = ({ hits }) => {
+  const addImages = ({ hits }) => {
     if (!hits.length) {
       alert("Try another word");
     }
 
-    if (hits.length < 12) {
-      this.setState({ loadMoreBtn: false });
-    } else {
-      this.setState({ loadMoreBtn: true });
-    }
+    hits.length < 12 ? setLoadMoreBtn(false) : setLoadMoreBtn(true);
 
-    this.setState((prevState) => {
-      return {
-        images: [...prevState.images, ...hits],
-      };
-    });
+    setImages((prevState) => [...prevState, ...hits]);
   };
 
-  render() {
-    const { images, showModal, modalImg, loadMoreBtn, loading } = this.state;
+  const formSubmitHandler = (request) => {
+    if (request.trim()) {
+      setImages("");
+      setPage(1);
+      setRequest(request);
+    } else {
+      alert("Enter search request");
+    }
+  };
 
-    return (
-      <div className="App">
-        <Searchbar onSubmit={this.formSubmitHandler} />
-        {images.length > 0 && (
-          <React.Fragment>
-            <ImageGallery>
-              <ImageGalleryItem images={images} openModal={this.onOpenModal} />
-            </ImageGallery>
-            {loadMoreBtn && <Button onClick={this.fetchPageImages} />}
-          </React.Fragment>
-        )}
-        ,
-        {loading && (
-          <Loader
-            className="loader"
-            type="ThreeDots"
-            color="#3f51b5"
-            height={120}
-            width={120}
-          />
-        )}
-        ,
-        {showModal && (
-          <Modal onClose={this.toggleModal}>
-            {<img src={modalImg.largeImageURL} alt={modalImg.tags} />}
-          </Modal>
-        )}
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      <Searchbar onSubmit={formSubmitHandler} />
+      {images && (
+        <Fragment>
+          <ImageGallery>
+            <ImageGalleryItem images={images} openModal={setModalImg} />
+          </ImageGallery>
+          {loadMoreBtn && (
+            <Button
+              onClick={() => {
+                setPage((prevState) => (prevState += 1));
+              }}
+            />
+          )}
+        </Fragment>
+      )}
+      {loading && (
+        <Loader
+          className="loader"
+          type="ThreeDots"
+          color="#3f51b5"
+          height={120}
+          width={120}
+        />
+      )}
+      {modalImg && (
+        <Modal onClose={setModalImg}>
+          {<img src={modalImg.largeImageURL} alt={modalImg.tags} />}
+        </Modal>
+      )}
+    </div>
+  );
 }
-
-export default App;

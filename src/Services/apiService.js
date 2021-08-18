@@ -4,22 +4,12 @@ const BASE_URL =
 
 const perPage = 12;
 
-export default class PicturesApiService {
-  constructor(searchQuery) {
-    this.page = 1;
-    this.searchQuery = searchQuery;
-  }
-  fetchImages() {
-    return fetch(
-      `${BASE_URL}q=${this.searchQuery}&page=${this.page}&per_page=${perPage}&key=${KEY}`
-    ).then((response) => {
-      if (response.ok) {
-        this.page += 1;
-        return response.json();
-      }
-    });
-  }
-  resetPage() {
-    this.page = 1;
-  }
+export default function PicturesApiService(page, searchQuery) {
+  return fetch(
+    `${BASE_URL}q=${searchQuery}&page=${page}&per_page=${perPage}&key=${KEY}`
+  ).then((response) => {
+    if (response.ok) {
+      return response.json();
+    }
+  });
 }

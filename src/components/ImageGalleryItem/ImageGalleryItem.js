@@ -1,26 +1,23 @@
-import React, { Component } from "react";
+import { Fragment } from "react";
 import PropTypes from "prop-types";
 import "./ImageGalleryItem.scss";
 import uuid from "react-uuid";
 
-class ImageGalleryItem extends Component {
-  render() {
-    const { images, openModal } = this.props;
-    return (
-      <React.Fragment>
-        {images.map(({ webformatURL, largeImageURL, tags }) => (
-          <li key={uuid()} className="ImageGalleryItem">
-            <img
-              onClick={() => openModal(largeImageURL, tags)}
-              src={webformatURL}
-              alt={tags}
-              className="ImageGalleryItem-image"
-            />
-          </li>
-        ))}
-      </React.Fragment>
-    );
-  }
+export default function ImageGalleryItem({ images, openModal }) {
+  return (
+    <Fragment>
+      {images.map(({ webformatURL, largeImageURL, tags }) => (
+        <li key={uuid()} className="ImageGalleryItem">
+          <img
+            onClick={() => openModal({ largeImageURL, tags })}
+            src={webformatURL}
+            alt={tags}
+            className="ImageGalleryItem-image"
+          />
+        </li>
+      ))}
+    </Fragment>
+  );
 }
 
 ImageGalleryItem.propTypes = {
@@ -33,5 +30,3 @@ ImageGalleryItem.propTypes = {
     })
   ).isRequired,
 };
-
-export default ImageGalleryItem;
