@@ -22,11 +22,13 @@ export default function App() {
   const [loadMoreBtn, setLoadMoreBtn] = useState(false);
 
   useEffect(() => {
+    setLoading(true);
+
     if (!request) {
       setPage(1);
+      setLoading(false);
       return;
     }
-    setLoading(true);
 
     PicturesApiService(page, request)
       .then(addImages)
@@ -45,13 +47,12 @@ export default function App() {
   }, [request, page]);
 
   const addImages = ({ hits }) => {
-    if (!hits.length) {
+    if (hits.length === 0) {
       alert("Try another word");
+    } else {
+      hits.length < 12 ? setLoadMoreBtn(false) : setLoadMoreBtn(true);
+      setImages((prevState) => [...prevState, ...hits]);
     }
-
-    hits.length < 12 ? setLoadMoreBtn(false) : setLoadMoreBtn(true);
-
-    setImages((prevState) => [...prevState, ...hits]);
   };
 
   const formSubmitHandler = (request) => {
